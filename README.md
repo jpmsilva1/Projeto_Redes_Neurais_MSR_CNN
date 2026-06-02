@@ -22,6 +22,26 @@ O projeto utiliza a biblioteca `yfinance` para baixar dados diários da bolsa br
 
 ---
 
+## 📂 Estrutura do Repositório
+
+```text
+├── src/                        # Códigos-fonte Python
+│   ├── data_pipeline.py        # Coleta e pré-processamento de dados
+│   ├── models.py               # Arquiteturas PyTorch (MSR-CNN, Baseline, Atenção)
+│   ├── train.py                # Script de treinamento dos modelos base
+│   ├── train_attention.py      # Script de treinamento do modelo com atenção
+│   ├── evaluate.py             # Validação preditiva e extração de FFT
+│   └── evaluate_attention.py   # Extração dos pesos de atenção
+├── docs/                       # Documentação e relatórios do projeto
+│   └── analise_resultados.md   # Relatório detalhado dos resultados
+├── data/                       # Arquivos CSV gerados (Treino/Validação/Teste)
+├── checkpoints/                # Pesos (.pt) dos modelos treinados
+├── results/                    # Gráficos analíticos salvos (FFT, Matrizes)
+└── README.md                   # Este arquivo
+```
+
+---
+
 ## 🚀 Como Replicar na sua Máquina
 
 O código foi otimizado nativamente para uso de aceleração no **macOS (Apple Silicon - MPS)**, mas pode rodar em CUDA ou CPU facilmente (há fallback automático implementado nos scripts).
@@ -48,7 +68,7 @@ pip install torch torchvision torchaudio yfinance pandas ta scikit-learn matplot
 Este script fará o download da base e criará os arquivos CSV normalizados divididos em Treino, Validação e Teste na pasta `data/`.
 
 ```bash
-python data_pipeline.py
+python src/data_pipeline.py
 ```
 
 ### 3. Treinar os Modelos
@@ -56,13 +76,13 @@ python data_pipeline.py
 Para treinar a Baseline e o MSR-CNN clássico:
 
 ```bash
-python train.py
+python src/train.py
 ```
 
 Para treinar a arquitetura com o mecanismo de Atenção proposto:
 
 ```bash
-python train_attention.py
+python src/train_attention.py
 ```
 *(Os pesos dos modelos treinados ficarão salvos na pasta `checkpoints/`).*
 
@@ -71,8 +91,8 @@ python train_attention.py
 A grande vantagem estrutural desse modelo é poder entender **o que** ele aprendeu. O script de avaliação não só diz a acurácia, mas também extrai a Transformada Rápida de Fourier (FFT) dos pesos convolucionais para provar que a rede se organizou em filtros Passa-Alta, Passa-Baixa e Passa-Banda.
 
 ```bash
-python evaluate.py
-python evaluate_attention.py
+python src/evaluate.py
+python src/evaluate_attention.py
 ```
 *(Os gráficos analíticos e espectrais serão salvos na pasta `results/`).*
 

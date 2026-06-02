@@ -24,10 +24,10 @@ Para comprovar empíricamente a especialização desses filtros, aplicamos a **T
 
 Abaixo estão os gráficos da resposta em frequência aprendida autonomamente pela rede para quatro ativos diferentes:
 
-![FFT - Petrobras](results/fft_filters_PETR4.SA.png)
-![FFT - Vale](results/fft_filters_VALE3.SA.png)
-![FFT - Itaú](results/fft_filters_ITUB4.SA.png)
-![FFT - Ibovespa](results/fft_filters_BVSP.png)
+![FFT - Petrobras](../results/fft_filters_PETR4.SA.png)
+![FFT - Vale](../results/fft_filters_VALE3.SA.png)
+![FFT - Itaú](../results/fft_filters_ITUB4.SA.png)
+![FFT - Ibovespa](../results/fft_filters_BVSP.png)
 
 **Conclusões da Análise Espectral:**
 Observando as curvas espectrais, nota-se que a rede organizou espontaneamente (via *backpropagation*, sem supervisão algorítmica externa) o aprendizado em faixas de frequência distintas:
@@ -43,10 +43,10 @@ Este resultado valida a utilidade do módulo ASD adaptado para finanças, separa
 
 A extensão original aplicada sobre a arquitetura base adiciona uma camada de **Atenção** (*Softmax*) ao final do processamento das 3 subbandas. Os heatmaps abaixo exibem o peso médio distribuído pela rede para as componentes de Ruído, Sazonalidade e Tendência a depender da sua tomada de decisão final (HOLD, BUY ou SELL).
 
-![Atenção - Petrobras](results/attention_weights_PETR4.SA.png)
-![Atenção - Vale](results/attention_weights_VALE3.SA.png)
-![Atenção - Itaú](results/attention_weights_ITUB4.SA.png)
-![Atenção - Ibovespa](results/attention_weights_BVSP.png)
+![Atenção - Petrobras](../results/attention_weights_PETR4.SA.png)
+![Atenção - Vale](../results/attention_weights_VALE3.SA.png)
+![Atenção - Itaú](../results/attention_weights_ITUB4.SA.png)
+![Atenção - Ibovespa](../results/attention_weights_BVSP.png)
 
 **Conclusões do Mecanismo de Atenção:**
 * A matriz demonstra que o modelo descobre assimetrias comportamentais no mercado.
