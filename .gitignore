@@ -1,0 +1,22 @@
+# Arquivos do sistema
+.DS_Store
+
+# Ambientes virtuais Python
+venv/
+env/
+.env
+
+# Arquivos temporários e cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Pastas geradas pelo projeto
+# (Descomente as linhas abaixo se os dados ou os pesos dos modelos forem muito grandes para o GitHub)
+# data/
+# checkpoints/
+
+# Logs e arquivos temporários do Jupyter/VSCode
+.ipynb_checkpoints/
+.vscode/
