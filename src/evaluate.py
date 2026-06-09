@@ -67,7 +67,7 @@ def plot_fft_filters(model, save_path):
     
     plt.figure(figsize=(10, 6))
     plt.plot(freqs, fft_noise, label='Ruído (Passa-Alta)', color='red')
-    plt.plot(freqs, fft_seasonality, label='Sazonalidade (Passa-Banda)', color='green')
+    plt.plot(freqs, fft_seasonality, label='Sazonalidade (Freq. Média / Passa-Banda)', color='green')
     plt.plot(freqs, fft_trend, label='Tendência (Passa-Baixa)', color='blue')
     plt.title('Resposta em Frequência dos Filtros Aprendidos (ASD)')
     plt.xlabel('Frequência Normalizada')

@@ -20,8 +20,163 @@ O projeto utiliza a biblioteca `yfinance` para baixar dados diários da bolsa br
 - **Features extraídas:** Retornos Logarítmicos, Volume, RSI, MACD, MACD Signal, ATR (Average True Range).
 - **Target (Label):** Retorno futuro em janela de 5 dias classificado como BUY (+1.5%), SELL (-1.5%) ou HOLD.
 
----
+### Por que uma Decomposição Assimétrica?
 
+A arquitetura MSR-CNN original utilizava uma árvore simétrica (dividindo os sinais em potências de 2, 4, 8...). Neste projeto de mestrado, optamos por uma **Decomposição Assimétrica** por três justificativas técnicas:
+1. **Alinhamento com a Teoria Econômica (STL):** A análise estatística financeira foca em exatamente 3 componentes: Tendência, Sazonalidade e Ruído. A árvore assimétrica nos permite forçar a rede a gerar exatamente 3 canais de informação (Subbandas), mantendo o modelo interpretável.
+2. **Foco na Frequência Correta:** O modelo descarta o Ruído na primeira etapa e aplica processamento profundo apenas nas baixas frequências e frequências médias, onde o "sinal real" da economia reside.
+3. **Prevenção de Overfitting:** Evita o custo computacional inútil de fatiar o ruído repetidas vezes.
+
+### Fluxo da Arquitetura
+
+Abaixo detalhamos visualmente as duas versões da rede implementadas neste projeto.
+
+#### 1. MSR-CNN Clássico (Original Adaptado)
+Nesta versão, que replica a lógica do artigo original adaptada para séries temporais, as subbandas são concatenadas de forma bruta e enviadas diretamente para o classificador final (Camada Densa). A rede precisa descobrir sozinha na "força bruta" qual frequência importa mais.
+
+```mermaid
+flowchart TD
+    classDef input fill:#e1f5fe,stroke:#3b82f6,stroke-width:2px,color:#000
+    classDef asd fill:#fff3e0,stroke:#0ea5e9,stroke-width:2px,color:#000
+    classDef subband fill:#f3e8ff,stroke:#6366f1,stroke-width:2px,color:#000
+    classDef cnn fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px,color:#000
+    classDef concat fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#000
+    classDef output fill:#ecfdf5,stroke:#ec4899,stroke-width:2px,color:#000
+
+    Input["Série Temporal (Janela de 32 dias, 6 Canais)"]:::input
+    
+    subgraph ASD["Módulo ASD (Decomposição Assimétrica 1D)"]
+        L1_H["Filtro Passa-Alta L1\n(Conv1D + Pooling)"]:::asd
+        L1_L["Filtro Passa-Baixa L1\n(Conv1D + Pooling)"]:::asd
+        
+        L2_H["Filtro Passa-Alta L2\n(Conv1D + Pooling)"]:::asd
+        L2_L["Filtro Passa-Baixa L2\n(Conv1D + Pooling)"]:::asd
+        
+        Input --> L1_H
+        Input --> L1_L
+        
+        L1_L --> L2_H
+        L1_L --> L2_L
+    end
+    
+    subgraph Subbands["Separação Estrutural"]
+        SB1["Subbanda 1\n(Ruído / Alta Freq.)"]:::subband
+        SB2["Subbanda 2\n(Sazonalidade / Freq. Média)"]:::subband
+        SB3["Subbanda 3\n(Tendência / Baixa Freq.)"]:::subband
+        
+        L1_H --> SB1
+        L2_H --> SB2
+        L2_L --> SB3
+    end
+    
+    subgraph CNN["Sub-Redes Independentes"]
+        CNN1["CNN 1D\n(Especialista Ruído)"]:::cnn
+        CNN2["CNN 1D\n(Especialista Sazonalidade)"]:::cnn
+        CNN3["CNN 1D\n(Especialista Tendência)"]:::cnn
+        
+        SB1 --> CNN1
+        SB2 --> CNN2
+        SB3 --> CNN3
+    end
+    
+    Concat{"Concatenação Bruta"}:::concat
+    
+    CNN1 --> Concat
+    CNN2 --> Concat
+    CNN3 --> Concat
+    
+    FC["Camadas Densas\n(Fully Connected)"]:::output
+    Concat --> FC
+    
+    Output["Saída: Decisão de Mercado\n(BUY / SELL / HOLD)"]:::output
+    FC --> Output
+```
+
+#### 2. MSR-CNN com Atenção Dinâmica (Nossa Extensão)
+Para resolver a limitação da rede clássica, propusemos um mecanismo de Auto-Atenção (*Self-Attention*). O `Softmax` atua como um juiz que lê a concatenação bruta inteira e calcula três pesos dinâmicos. Esses pesos são multiplicados de volta contra as saídas dos especialistas, silenciando frequências irrelevantes para o dia específico antes da decisão final.
+
+```mermaid
+flowchart TD
+    classDef input fill:#e1f5fe,stroke:#3b82f6,stroke-width:2px,color:#000
+    classDef asd fill:#fff3e0,stroke:#0ea5e9,stroke-width:2px,color:#000
+    classDef subband fill:#f3e8ff,stroke:#6366f1,stroke-width:2px,color:#000
+    classDef cnn fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px,color:#000
+    classDef concat fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#000
+    classDef attn fill:#fce7f3,stroke:#d946ef,stroke-width:2px,color:#000
+    classDef output fill:#ecfdf5,stroke:#ec4899,stroke-width:2px,color:#000
+
+    Input["Série Temporal (Janela de 32 dias, 6 Canais)"]:::input
+    
+    subgraph ASD["Módulo ASD (Decomposição Assimétrica 1D)"]
+        L1_H["Filtro Passa-Alta L1\n(Conv1D + Pooling)"]:::asd
+        L1_L["Filtro Passa-Baixa L1\n(Conv1D + Pooling)"]:::asd
+        
+        L2_H["Filtro Passa-Alta L2\n(Conv1D + Pooling)"]:::asd
+        L2_L["Filtro Passa-Baixa L2\n(Conv1D + Pooling)"]:::asd
+        
+        Input --> L1_H
+        Input --> L1_L
+        
+        L1_L --> L2_H
+        L1_L --> L2_L
+    end
+    
+    subgraph Subbands["Separação Estrutural"]
+        SB1["Subbanda 1\n(Ruído / Alta Freq.)"]:::subband
+        SB2["Subbanda 2\n(Sazonalidade / Freq. Média)"]:::subband
+        SB3["Subbanda 3\n(Tendência / Baixa Freq.)"]:::subband
+        
+        L1_H --> SB1
+        L2_H --> SB2
+        L2_L --> SB3
+    end
+    
+    subgraph CNN["Sub-Redes Independentes"]
+        CNN1["CNN 1D\n(Especialista Ruído)"]:::cnn
+        CNN2["CNN 1D\n(Especialista Sazonalidade)"]:::cnn
+        CNN3["CNN 1D\n(Especialista Tendência)"]:::cnn
+        
+        SB1 --> CNN1
+        SB2 --> CNN2
+        SB3 --> CNN3
+    end
+    
+    Concat{"Concatenação Bruta"}:::concat
+    
+    CNN1 --> Concat
+    CNN2 --> Concat
+    CNN3 --> Concat
+    
+    subgraph Attention["Módulo de Atenção Dinâmica"]
+        AttnCalc["Softmax\n(Calcula Distribuição de Pesos)"]:::attn
+        Concat --> AttnCalc
+        
+        Mult1(("X")):::attn
+        Mult2(("X")):::attn
+        Mult3(("X")):::attn
+        
+        AttnCalc -.->|Peso Ruído| Mult1
+        AttnCalc -.->|Peso Sazonalidade| Mult2
+        AttnCalc -.->|Peso Tendência| Mult3
+        
+        CNN1 --> Mult1
+        CNN2 --> Mult2
+        CNN3 --> Mult3
+    end
+    
+    Concat_Final{"Concatenação\nPonderada"}:::concat
+    Mult1 --> Concat_Final
+    Mult2 --> Concat_Final
+    Mult3 --> Concat_Final
+    
+    FC["Camadas Densas\n(Fully Connected)"]:::output
+    Concat_Final --> FC
+    
+    Output["Saída: Decisão de Mercado\n(BUY / SELL / HOLD)"]:::output
+    FC --> Output
+```
+
+---
 ## 📂 Estrutura do Repositório
 
 ```text
@@ -88,7 +243,7 @@ python src/train_attention.py
 
 ### 4. Avaliar e Analisar a Interpretabilidade
 
-A grande vantagem estrutural desse modelo é poder entender **o que** ele aprendeu. O script de avaliação não só diz a acurácia, mas também extrai a Transformada Rápida de Fourier (FFT) dos pesos convolucionais para provar que a rede se organizou em filtros Passa-Alta, Passa-Baixa e Passa-Banda.
+A grande vantagem estrutural desse modelo é poder entender **o que** ele aprendeu. O script de avaliação não só diz a acurácia, mas também extrai a Transformada Rápida de Fourier (FFT) dos pesos convolucionais para provar que a rede se organizou isolando as Baixas Frequências, Frequências Médias e Altas Frequências (filtros Passa-Baixa, Passa-Banda e Passa-Alta).
 
 ```bash
 python src/evaluate.py

@@ -32,7 +32,7 @@ Abaixo estão os gráficos da resposta em frequência aprendida autonomamente pe
 **Conclusões da Análise Espectral:**
 Observando as curvas espectrais, nota-se que a rede organizou espontaneamente (via *backpropagation*, sem supervisão algorítmica externa) o aprendizado em faixas de frequência distintas:
 * **Curva Azul (Tendência):** Concentra sua magnitude nas baixas frequências (próximo ao eixo Y). O modelo gerou efetivamente um filtro "Passa-Baixa", ideal para isolar movimentos macroeconômicos de longo prazo.
-* **Curva Verde (Sazonalidade):** Forma curvas de sino ao longo do espectro, funcionando como um filtro "Passa-Banda". Ele filtra o longuíssimo prazo e o curtíssimo prazo, identificando perfeitamente ciclos médios.
+* **Curva Verde (Sazonalidade):** Forma curvas de sino ao longo do espectro, funcionando como um filtro de "Frequência Média" (Passa-Banda). Ele filtra o longuíssimo prazo e o curtíssimo prazo, identificando perfeitamente ciclos médios.
 * **Curva Vermelha (Ruído):** Exibe picos nas altas frequências. Atua como um "Passa-Alta", capturando a volatilidade severa e movimentos de microestrutura (ruído diário).
 
 Este resultado valida a utilidade do módulo ASD adaptado para finanças, separando o sinal ruidoso de forma coerente.
