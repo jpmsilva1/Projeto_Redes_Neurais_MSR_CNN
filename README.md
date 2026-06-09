@@ -219,8 +219,8 @@ Crie um ambiente virtual usando o Python (versão 3.9+ recomendada):
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/msrcnn-finance.git
-cd msrcnn-finance
+git clone https://github.com/jpmsilva1/Projeto_redes_Neurais_MSR_CNN.git
+cd Projeto_redes_Neurais_MSR_CNN
 
 # Crie e ative o ambiente virtual
 python3 -m venv venv
