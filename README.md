@@ -70,9 +70,9 @@ flowchart TD
     end
     
     subgraph CNN["Sub-Redes Independentes"]
-        CNN1["CNN 1D\n(Especialista Ruído)\nAtivação: LeakyReLU"]:::cnn
-        CNN2["CNN 1D\n(Especialista Sazonalidade)\nAtivação: LeakyReLU"]:::cnn
-        CNN3["CNN 1D\n(Especialista Tendência)\nAtivação: LeakyReLU"]:::cnn
+        CNN1["CNN 1D\n(Especialista Ruído)\nAtivação: LeakyReLU\nMax Pooling 1D"]:::cnn
+        CNN2["CNN 1D\n(Especialista Sazonalidade)\nAtivação: LeakyReLU\nMax Pooling 1D"]:::cnn
+        CNN3["CNN 1D\n(Especialista Tendência)\nAtivação: LeakyReLU\nMax Pooling 1D"]:::cnn
         
         SB1 --> CNN1
         SB2 --> CNN2
@@ -138,9 +138,9 @@ flowchart TD
     end
     
     subgraph CNN["Sub-Redes Independentes"]
-        CNN1["CNN 1D\n(Especialista Ruído)\nAtivação: LeakyReLU"]:::cnn
-        CNN2["CNN 1D\n(Especialista Sazonalidade)\nAtivação: LeakyReLU"]:::cnn
-        CNN3["CNN 1D\n(Especialista Tendência)\nAtivação: LeakyReLU"]:::cnn
+        CNN1["CNN 1D\n(Especialista Ruído)\nAtivação: LeakyReLU\nMax Pooling 1D"]:::cnn
+        CNN2["CNN 1D\n(Especialista Sazonalidade)\nAtivação: LeakyReLU\nMax Pooling 1D"]:::cnn
+        CNN3["CNN 1D\n(Especialista Tendência)\nAtivação: LeakyReLU\nMax Pooling 1D"]:::cnn
         
         SB1 --> CNN1
         SB2 --> CNN2
