@@ -99,7 +99,7 @@ flowchart TD
 4. **Concatenação e Decisão Final:** As extrações dos três especialistas são unidas lado a lado (Concatenação Bruta) e entregues à Camada Densa final. A rede final (utilizando a ativação não-linear **ReLU** e **Dropout** para regularização) tenta deduzir a classe (`BUY/SELL/HOLD`) forçando sentido nessa mistura homogênea.
 
 #### 2. MSR-CNN com Atenção Dinâmica (Nossa Extensão)
-Para resolver a limitação da rede clássica, propusemos um mecanismo de Auto-Atenção (*Self-Attention*). O `Softmax` atua como um juiz que lê a concatenação bruta inteira e calcula três pesos dinâmicos. Esses pesos são multiplicados de volta contra as saídas dos especialistas, silenciando frequências irrelevantes para o dia específico antes da decisão final.
+Para resolver a limitação da rede clássica, propusemos um mecanismo de **Atenção Dinâmica de Subbandas**. A arquitetura deste módulo é matematicamente inspirada no conceito de *Channel Attention* introduzido pelas Squeeze-and-Excitation Networks (Hu et al., 2018) e no paradigma fundamental de atenção (Vaswani et al., 2017). Nossa inovação consiste em transpor essas mecânicas da visão computacional para atuarem como um seletor dinâmico de frequências financeiras. O `Softmax` atua como um juiz que lê a concatenação bruta inteira e calcula três pesos dinâmicos. Esses pesos são multiplicados de volta contra as saídas dos especialistas, silenciando frequências irrelevantes para o dia específico antes da decisão final.
 
 ```mermaid
 flowchart TD
@@ -275,3 +275,5 @@ Os gráficos gerados na pasta `results/` confirmam a eficácia analítica da red
 
 ## 📖 Referências
 - *P. Sinha, I. Psaromiligkos and Z. Zilic, "A Structurally Regularized CNN Architecture via Adaptive Subband Decomposition," in IEEE Transactions on Neural Networks and Learning Systems, vol. 36, no. 7, pp. 12937-12951, July 2025, doi: 10.1109/TNNLS.2024.3486181.*
+- *A. Vaswani et al., "Attention is all you need," in Advances in neural information processing systems, vol. 30, 2017.*
+- *J. Hu, L. Shen, and G. Sun, "Squeeze-and-excitation networks," in Proceedings of the IEEE conference on computer vision and pattern recognition, pp. 7132-7141, 2018.*
