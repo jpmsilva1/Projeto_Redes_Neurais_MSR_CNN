@@ -274,4 +274,4 @@ Os gráficos gerados na pasta `results/` confirmam a eficácia analítica da red
 ---
 
 ## 📖 Referências
-- *Sinha, P., Psaromiligkos, I., & Zilic, Z. (2023). A Structurally Regularized CNN Architecture via Adaptive Subband Decomposition. arXiv:2306.16604 [eess.IV].*
+- *P. Sinha, I. Psaromiligkos and Z. Zilic, "A Structurally Regularized CNN Architecture via Adaptive Subband Decomposition," in IEEE Transactions on Neural Networks and Learning Systems, vol. 36, no. 7, pp. 12937-12951, July 2025, doi: 10.1109/TNNLS.2024.3486181.*
