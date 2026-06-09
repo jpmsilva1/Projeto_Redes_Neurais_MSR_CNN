@@ -70,9 +70,9 @@ flowchart TD
     end
     
     subgraph CNN["Sub-Redes Independentes"]
-        CNN1["CNN 1D\n(Especialista Ruído)"]:::cnn
-        CNN2["CNN 1D\n(Especialista Sazonalidade)"]:::cnn
-        CNN3["CNN 1D\n(Especialista Tendência)"]:::cnn
+        CNN1["CNN 1D\n(Especialista Ruído)\nAtivação: LeakyReLU"]:::cnn
+        CNN2["CNN 1D\n(Especialista Sazonalidade)\nAtivação: LeakyReLU"]:::cnn
+        CNN3["CNN 1D\n(Especialista Tendência)\nAtivação: LeakyReLU"]:::cnn
         
         SB1 --> CNN1
         SB2 --> CNN2
@@ -85,7 +85,7 @@ flowchart TD
     CNN2 --> Concat
     CNN3 --> Concat
     
-    FC["Camadas Densas\n(Fully Connected)"]:::output
+    FC["Camadas Densas\n(Fully Connected)\nAtivação: ReLU + Dropout"]:::output
     Concat --> FC
     
     Output["Saída: Decisão de Mercado\n(BUY / SELL / HOLD)"]:::output
@@ -95,8 +95,8 @@ flowchart TD
 **Entendendo o Fluxo Clássico (Passo a Passo):**
 1. **A Entrada:** A rede recebe uma matriz contendo os dados dos últimos 32 pregões divididos em 6 canais (Retorno Logarítmico, Volume e indicadores técnicos).
 2. **A Separação (Módulo ASD):** A matriz passa por filtros de convolução 1D agrupados (*depthwise*). A rede "fatia" a matriz separando as oscilações caóticas diárias (Ruído), os movimentos cíclicos (Sazonalidade) e o direcional de longo prazo (Tendência).
-3. **Sub-Redes Especializadas:** Cada um desses 3 sinais é enviado para uma pequena rede convolucional totalmente isolada das demais. Cada especialista procura padrões estruturais focando apenas na sua faixa de frequência.
-4. **Concatenação e Decisão Final:** As extrações dos três especialistas são unidas lado a lado (Concatenação Bruta) e entregues à Camada Densa final. A rede final tenta deduzir a classe (`BUY/SELL/HOLD`) forçando sentido nessa mistura homogênea.
+3. **Sub-Redes Especializadas:** Cada um desses 3 sinais é enviado para uma pequena rede convolucional totalmente isolada das demais. Cada especialista procura padrões estruturais focando apenas na sua faixa de frequência, utilizando funções de ativação **LeakyReLU** (para preservar gradientes negativos sutis financeiros) seguidas de *Max Pooling*.
+4. **Concatenação e Decisão Final:** As extrações dos três especialistas são unidas lado a lado (Concatenação Bruta) e entregues à Camada Densa final. A rede final (utilizando a ativação não-linear **ReLU** e **Dropout** para regularização) tenta deduzir a classe (`BUY/SELL/HOLD`) forçando sentido nessa mistura homogênea.
 
 #### 2. MSR-CNN com Atenção Dinâmica (Nossa Extensão)
 Para resolver a limitação da rede clássica, propusemos um mecanismo de Auto-Atenção (*Self-Attention*). O `Softmax` atua como um juiz que lê a concatenação bruta inteira e calcula três pesos dinâmicos. Esses pesos são multiplicados de volta contra as saídas dos especialistas, silenciando frequências irrelevantes para o dia específico antes da decisão final.
@@ -138,9 +138,9 @@ flowchart TD
     end
     
     subgraph CNN["Sub-Redes Independentes"]
-        CNN1["CNN 1D\n(Especialista Ruído)"]:::cnn
-        CNN2["CNN 1D\n(Especialista Sazonalidade)"]:::cnn
-        CNN3["CNN 1D\n(Especialista Tendência)"]:::cnn
+        CNN1["CNN 1D\n(Especialista Ruído)\nAtivação: LeakyReLU"]:::cnn
+        CNN2["CNN 1D\n(Especialista Sazonalidade)\nAtivação: LeakyReLU"]:::cnn
+        CNN3["CNN 1D\n(Especialista Tendência)\nAtivação: LeakyReLU"]:::cnn
         
         SB1 --> CNN1
         SB2 --> CNN2
@@ -154,7 +154,7 @@ flowchart TD
     CNN3 --> Concat
     
     subgraph Attention["Módulo de Atenção Dinâmica"]
-        AttnCalc["Softmax\n(Calcula Distribuição de Pesos)"]:::attn
+        AttnCalc["Atenção Dinâmica\n(Tanh -> Softmax)"]:::attn
         Concat --> AttnCalc
         
         Mult1(("X")):::attn
@@ -175,7 +175,7 @@ flowchart TD
     Mult2 --> Concat_Final
     Mult3 --> Concat_Final
     
-    FC["Camadas Densas\n(Fully Connected)"]:::output
+    FC["Camadas Densas\n(Fully Connected)\nAtivação: ReLU + Dropout"]:::output
     Concat_Final --> FC
     
     Output["Saída: Decisão de Mercado\n(BUY / SELL / HOLD)"]:::output
@@ -184,7 +184,7 @@ flowchart TD
 
 **Entendendo o Fluxo com Atenção (Passo a Passo):**
 *(O trajeto inicial é idêntico ao modelo clássico. A diferença ocorre após a Concatenação Bruta).*
-1. **A Visão Global do Juiz (Cálculo de Pesos):** Em vez de jogar a informação diretamente para o final, a `Concatenação Bruta` é enviada inteira para uma camada densa com ativação `Softmax`. Ela atua como um "Juiz" que lê o contexto total do dia e determina *qual frequência é a mais importante naquele cenário*. Ela devolve 3 notas percentuais (pesos de 0 a 1).
+1. **A Visão Global do Juiz (Cálculo de Pesos):** Em vez de jogar a informação diretamente para o final, a `Concatenação Bruta` é enviada inteira para uma camada densa intermediária. Essa camada usa a ativação **Tanh** para comprimir a representação, seguida da função **Softmax**. Ela atua como um "Juiz" que lê o contexto total do dia e determina *qual frequência é a mais importante naquele cenário*, devolvendo 3 notas percentuais (pesos de 0 a 1).
 2. **A Aplicação do Filtro Dinâmico:** Os sinais individuais de cada especialista (as setas paralelas no diagrama) passam por um nó multiplicador (`X`), onde recebem o peso definido pelo Juiz. Se a rede identificar um ambiente de pânico no mercado, ela pode gerar um peso de `0.80` para o Ruído e `0.10` para os outros, "silenciando" algoritmicamente as frequências inócuas para aquele momento.
 3. **A Decisão Final:** É essa nova matriz filtrada (Concatenação Ponderada) que a Camada Densa final usa para calcular as probabilidades de `BUY`, `SELL` ou `HOLD`, tornando a predição altamente contextual e interpretável.
 
