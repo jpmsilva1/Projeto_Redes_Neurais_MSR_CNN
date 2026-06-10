@@ -75,7 +75,7 @@ def main():
     window_size = 32
     in_channels = 6
     
-    os.makedirs('results', exist_ok=True)
+    os.makedirs('results/interpretabilidade', exist_ok=True)
     
     for ticker in tickers:
         print(f"\\n{'='*40}\\nAvaliando Atenção para {ticker}\\n{'='*40}")
@@ -88,8 +88,8 @@ def main():
         acc, f1, avg_attn = evaluate_attention(msrcnn_attn, test_loader, device)
         print(f"MSR-CNN Attention -> Acc: {acc:.4f} | F1-Macro: {f1:.4f}")
         
-        plot_attention_weights(avg_attn, f"results/attention_weights_{ticker}.png")
-        print(f"Gráfico de pesos de atenção salvo em results/attention_weights_{ticker}.png")
+        plot_attention_weights(avg_attn, f"results/interpretabilidade/attention_weights_{ticker}.png")
+        print(f"Gráfico de pesos de atenção salvo em results/interpretabilidade/attention_weights_{ticker}.png")
 
 if __name__ == '__main__':
     main()

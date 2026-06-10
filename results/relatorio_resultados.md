@@ -59,13 +59,13 @@ O diferencial mais robusto do MSR-CNN não é apenas a acurácia, mas a capacida
 
 ### Gráficos de Resposta em Frequência
 
-![Resposta em Frequência dos Filtros ASD — BVSP](fft_filters_BVSP.png)
+![Resposta em Frequência dos Filtros ASD — BVSP](interpretabilidade/fft_filters_BVSP.png)
 
-![Resposta em Frequência dos Filtros ASD — PETR4.SA](fft_filters_PETR4.SA.png)
+![Resposta em Frequência dos Filtros ASD — PETR4.SA](interpretabilidade/fft_filters_PETR4.SA.png)
 
-![Resposta em Frequência dos Filtros ASD — VALE3.SA](fft_filters_VALE3.SA.png)
+![Resposta em Frequência dos Filtros ASD — VALE3.SA](interpretabilidade/fft_filters_VALE3.SA.png)
 
-![Resposta em Frequência dos Filtros ASD — ITUB4.SA](fft_filters_ITUB4.SA.png)
+![Resposta em Frequência dos Filtros ASD — ITUB4.SA](interpretabilidade/fft_filters_ITUB4.SA.png)
 
 ### Como interpretar os gráficos de FFT:
 
@@ -85,13 +85,13 @@ A extensão proposta neste trabalho (Módulo de Atenção) permite visualizar **
 
 ### Matrizes de Pesos de Atenção
 
-![Pesos de Atenção — BVSP](attention_weights_BVSP.png)
+![Pesos de Atenção — BVSP](interpretabilidade/attention_weights_BVSP.png)
 
-![Pesos de Atenção — PETR4.SA](attention_weights_PETR4.SA.png)
+![Pesos de Atenção — PETR4.SA](interpretabilidade/attention_weights_PETR4.SA.png)
 
-![Pesos de Atenção — VALE3.SA](attention_weights_VALE3.SA.png)
+![Pesos de Atenção — VALE3.SA](interpretabilidade/attention_weights_VALE3.SA.png)
 
-![Pesos de Atenção — ITUB4.SA](attention_weights_ITUB4.SA.png)
+![Pesos de Atenção — ITUB4.SA](interpretabilidade/attention_weights_ITUB4.SA.png)
 
 ### Como interpretar as matrizes de atenção:
 
@@ -208,8 +208,8 @@ Todos os três modelos apresentam recall muito baixo para SELL. Isso ocorre porq
 ### Interpretabilidade Espectral (`results/`)
 | Arquivo | Descrição |
 |---|---|
-| `fft_filters_*.png` | Resposta em frequência dos filtros ASD aprendidos |
-| `attention_weights_*.png` | Pesos médios de atenção por classe predita |
+| `interpretabilidade/fft_filters_*.png` | Resposta em frequência dos filtros ASD aprendidos |
+| `interpretabilidade/attention_weights_*.png` | Pesos médios de atenção por classe predita |
 
 ### Validação Temporal (`results/validation/`)
 | Arquivo | Descrição |

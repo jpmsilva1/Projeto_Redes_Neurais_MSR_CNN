@@ -85,7 +85,7 @@ def main():
     window_size = 32
     in_channels = 6
     
-    os.makedirs('results', exist_ok=True)
+    os.makedirs('results/interpretabilidade', exist_ok=True)
     
     for ticker in tickers:
         print(f"\\n{'='*40}\\nAvaliando para {ticker}\\n{'='*40}")
@@ -107,8 +107,8 @@ def main():
         print(f"MSR-CNN Clássico -> Acc: {acc_m:.4f} | F1-Macro: {f1_m:.4f}")
         
         # Plotar FFT
-        plot_fft_filters(msrcnn, f"results/fft_filters_{ticker}.png")
-        print(f"Gráfico de resposta em frequência salvo em results/fft_filters_{ticker}.png")
+        plot_fft_filters(msrcnn, f"results/interpretabilidade/fft_filters_{ticker}.png")
+        print(f"Gráfico de resposta em frequência salvo em results/interpretabilidade/fft_filters_{ticker}.png")
 
 if __name__ == '__main__':
     main()
