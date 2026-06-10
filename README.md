@@ -17,7 +17,12 @@ Neste projeto, utilizamos uma **Decomposição Adaptativa em Subbandas Assimétr
 
 O projeto utiliza a biblioteca `yfinance` para baixar dados diários da bolsa brasileira (Ibovespa):
 - **Tickers:** `^BVSP`, `PETR4.SA`, `VALE3.SA`, `ITUB4.SA`.
-- **Features extraídas:** Retornos Logarítmicos, Volume, RSI, MACD, MACD Signal, ATR (Average True Range).
+- **Features extraídas e suas finalidades:**
+  - **Retornos Logarítmicos:** Estabilizam a variância dos retornos e lidam melhor com juros compostos em comparação com o retorno percentual simples. Atuam como o principal indicador da direcionalidade diária.
+  - **Volume:** Mede a força institucional por trás de um movimento de preço. Uma tendência ou rompimento acompanhado de alto volume tem maior probabilidade de continuidade.
+  - **RSI (Relative Strength Index):** Oscilador de *momentum* que indica condições de sobrecompra (acima de 70) ou sobrevenda (abaixo de 30). Ajuda o modelo a identificar possíveis pontos de reversão por exaustão do mercado.
+  - **MACD (Moving Average Convergence Divergence) e MACD Signal:** Capturam a relação entre diferentes médias móveis exponenciais. São cruciais para a rede detectar acelerações de tendência (*momentum*) e cruzamentos que indicam mudanças de ciclo de médio prazo.
+  - **ATR (Average True Range):** Medidor puro de volatilidade direcional. Ensina à rede o "tamanho" esperado do risco atual, permitindo que ela contextualize se um movimento forte é um rompimento real ou apenas o ruído natural para o nível de volatilidade do momento.
 - **Target (Label):** Retorno futuro em janela de 5 dias classificado como BUY (+1.5%), SELL (-1.5%) ou HOLD.
 
 ### Por que uma Decomposição Assimétrica?
