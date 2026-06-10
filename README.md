@@ -26,11 +26,14 @@ O projeto utiliza a biblioteca `yfinance` para baixar dados diários da bolsa br
 - **Target (Label):** Retorno futuro em janela de 5 dias classificado como BUY (+1.5%), SELL (-1.5%) ou HOLD.
 
 ### Por que uma Decomposição Assimétrica?
-
 A arquitetura MSR-CNN original utilizava uma árvore simétrica (dividindo os sinais em potências de 2, 4, 8...). Neste projeto de mestrado, optamos por uma **Decomposição Assimétrica** por três justificativas técnicas:
 1. **Alinhamento com a Teoria Econômica (STL):** A análise estatística financeira foca em exatamente 3 componentes: Tendência, Sazonalidade e Ruído. A árvore assimétrica nos permite forçar a rede a gerar exatamente 3 canais de informação (Subbandas), mantendo o modelo interpretável.
 2. **Foco na Frequência Correta:** O modelo descarta o Ruído na primeira etapa e aplica processamento profundo apenas nas baixas frequências e frequências médias, onde o "sinal real" da economia reside.
 3. **Prevenção de Overfitting:** Evita o custo computacional inútil de fatiar o ruído repetidas vezes.
+
+### Justificativa de Hiperparâmetros
+- **Lookback Window (Janela de 32 dias):** O mercado financeiro sofre de quebra de regime e não-estacionariedade. Uma janela de 32 pregões (~1,5 meses) atua como o *sweet spot* ideal para prever o curto prazo. Janelas maiores (ex: 120 dias) "poluiriam" a rede com memórias de contextos econômicos antigos, tornando o modelo lento para reagir a crises ou novas tendências.
+- **Forecast Target (Alvo de 5 dias):** Representa exatamente uma semana completa de negociações. Alvos menores (1 dia) são esmagados pela aleatoriedade estocástica diária, enquanto alvos maiores (30 dias) exigem dados fundamentalistas e macroeconômicos que fogem do escopo dos sinais técnicos capturados pelas convoluções.
 
 ### Fluxo da Arquitetura
 
