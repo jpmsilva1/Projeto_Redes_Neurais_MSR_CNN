@@ -27,7 +27,7 @@ def evaluate_model(model, test_loader, device):
     f1 = f1_score(all_targets, all_preds, average='macro')
     return acc, f1, all_targets, all_preds
 
-def plot_fft_filters(model, save_path):
+def plot_fft_filters(model, ticker, save_path):
     """
     Extrai os pesos dos filtros ASD e plota a resposta em frequência.
     O objetivo é ver se eles se especializaram em:
@@ -69,7 +69,7 @@ def plot_fft_filters(model, save_path):
     plt.plot(freqs, fft_noise, label='Ruído (Passa-Alta)', color='red')
     plt.plot(freqs, fft_seasonality, label='Sazonalidade (Freq. Média / Passa-Banda)', color='green')
     plt.plot(freqs, fft_trend, label='Tendência (Passa-Baixa)', color='blue')
-    plt.title('Resposta em Frequência dos Filtros Aprendidos (ASD)')
+    plt.title(f'Resposta em Frequência dos Filtros Aprendidos (ASD) | {ticker}')
     plt.xlabel('Frequência Normalizada')
     plt.ylabel('Magnitude')
     plt.legend()
@@ -107,7 +107,7 @@ def main():
         print(f"MSR-CNN Clássico -> Acc: {acc_m:.4f} | F1-Macro: {f1_m:.4f}")
         
         # Plotar FFT
-        plot_fft_filters(msrcnn, f"results/interpretabilidade/fft_filters_{ticker}.png")
+        plot_fft_filters(msrcnn, ticker, f"results/interpretabilidade/fft_filters_{ticker}.png")
         print(f"Gráfico de resposta em frequência salvo em results/interpretabilidade/fft_filters_{ticker}.png")
 
 if __name__ == '__main__':

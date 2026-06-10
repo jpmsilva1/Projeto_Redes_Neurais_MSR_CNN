@@ -123,7 +123,7 @@ def plot_confusion_matrix(targets, preds, model_name, ticker, save_path):
         cm,
         annot=True,
         fmt='d',
-        cmap='magma',
+        cmap='Blues',
         xticklabels=LABEL_NAMES,
         yticklabels=LABEL_NAMES,
         ax=ax,

@@ -43,7 +43,7 @@ def evaluate_attention(model, test_loader, device):
             
     return acc, f1, avg_attn
 
-def plot_attention_weights(avg_attn, save_path):
+def plot_attention_weights(avg_attn, ticker, save_path):
     classes = ['HOLD', 'BUY', 'SELL']
     subbands = ['Ruído', 'Sazonalidade', 'Tendência']
     
@@ -62,7 +62,7 @@ def plot_attention_weights(avg_attn, save_path):
     ax.set_xticklabels(subbands)
     ax.set_yticklabels(classes)
     
-    plt.title('Pesos Médios de Atenção por Classe Predita', pad=20)
+    plt.title(f'Pesos Médios de Atenção por Classe Predita | {ticker}', pad=20)
     plt.colorbar(cax)
     plt.savefig(save_path)
     plt.close()
@@ -88,7 +88,7 @@ def main():
         acc, f1, avg_attn = evaluate_attention(msrcnn_attn, test_loader, device)
         print(f"MSR-CNN Attention -> Acc: {acc:.4f} | F1-Macro: {f1:.4f}")
         
-        plot_attention_weights(avg_attn, f"results/interpretabilidade/attention_weights_{ticker}.png")
+        plot_attention_weights(avg_attn, ticker, f"results/interpretabilidade/attention_weights_{ticker}.png")
         print(f"Gráfico de pesos de atenção salvo em results/interpretabilidade/attention_weights_{ticker}.png")
 
 if __name__ == '__main__':
