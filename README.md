@@ -271,6 +271,15 @@ python src/evaluate_attention.py
 ```
 *(Os gráficos analíticos e espectrais serão salvos na pasta `results/`).*
 
+### 5. Validação Temporal das Previsões
+
+Para verificar a qualidade real das previsões, este script compara as classificações previstas (BUY/SELL/HOLD) dos 3 modelos com o retorno real observado no mercado nos 5 dias seguintes. Gera Matrizes de Confusão, gráficos temporais e uma tabela comparativa completa.
+
+```bash
+python src/validate_predictions.py
+```
+*(Os resultados serão salvos na pasta `results/validation/`).*
+
 ---
 
 ## 🔬 Resultados de Interpretabilidade
