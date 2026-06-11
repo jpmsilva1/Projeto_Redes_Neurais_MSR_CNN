@@ -63,20 +63,20 @@ Abaixo apresentamos o desempenho (*Acurácia* e *F1-Score Macro*) de cada arquit
 | Segmento | Baseline CNN | | MSR-CNN Clássico | |
 |---|---|---|---|---|
 | | **Acc** | **F1** | **Acc** | **F1** |
-| **Commodities (10)** | 33.42% | 0.264 | **36.92%** | **0.276** |
-| **BDRs (Tech)** | 33.78% | 0.256 | **35.71%** | **0.273** |
-| **FIIs** | 62.59% | **0.328** | **64.96%** | 0.262 |
-| **Blue Chips** | **30.92%** | **0.237** | 30.68% | 0.229 |
-| **Small Caps** | **36.71%** | **0.276** | 34.79% | 0.235 |
+| **Commodities (10)** | 33.42% | 0.264 | <mark>**36.92%**</mark> | <mark>**0.276**</mark> |
+| **BDRs (Tech)** | 33.78% | 0.256 | <mark>**35.71%**</mark> | <mark>**0.273**</mark> |
+| **FIIs** | 62.59% | <mark>**0.328**</mark> | <mark>**64.96%**</mark> | 0.262 |
+| **Blue Chips** | <mark>**30.92%**</mark> | <mark>**0.237**</mark> | 30.68% | 0.229 |
+| **Small Caps** | <mark>**36.71%**</mark> | <mark>**0.276**</mark> | 34.79% | 0.235 |
 
 ### Fase 2: Larga Escala Americana e Câmbio
 | Segmento | Baseline CNN | | MSR-CNN Clássico | |
 |---|---|---|---|---|
 | | **Acc** | **F1** | **Acc** | **F1** |
-| **Commodities Exp. (15)**| **38.70%** | **0.357** | 31.35% | 0.216 |
-| **MegaCapsTech** | 36.45% | 0.271 | **37.08%** | **0.280** |
-| **TradicionaisGlobais** | 38.70% | **0.293** | **40.99%** | 0.260 |
-| **CambioGlobal** | **82.70%** | **0.301** | **82.70%** | **0.301** |
+| **Commodities Exp. (15)**| <mark>**38.70%**</mark> | <mark>**0.357**</mark> | 31.35% | 0.216 |
+| **MegaCapsTech** | 36.45% | 0.271 | <mark>**37.08%**</mark> | <mark>**0.280**</mark> |
+| **TradicionaisGlobais** | 38.70% | <mark>**0.293**</mark> | <mark>**40.99%**</mark> | 0.260 |
+| **CambioGlobal** | <mark>**82.70%**</mark> | <mark>**0.301**</mark> | <mark>**82.70%**</mark> | <mark>**0.301**</mark> |
 
 ### Fase 3: Efeitos do Data Augmentation (Sobre a Fase Global)
 Aplicando técnicas de transformação preservadora de série (Iwana & Uchida, 2021) em 50% das amostras de treino:
@@ -84,10 +84,10 @@ Aplicando técnicas de transformação preservadora de série (Iwana & Uchida, 2
 | Segmento | Baseline CNN | | MSR-CNN Clássico | |
 |---|---|---|---|---|
 | | **Acc** | **F1** | **Acc** | **F1** |
-| **Commodities Exp. (15)**| **37.38%** | **0.359** | 31.57% | 0.294 |
-| **MegaCapsTech** | 36.58% | 0.268 | **37.54%** | **0.287** |
-| **TradicionaisGlobais** | 41.78% | 0.222 | **41.85%** | **0.236** |
-| **CambioGlobal** | **82.70%** | **0.301** | **82.70%** | **0.301** |
+| **Commodities Exp. (15)**| <mark>**37.38%**</mark> | <mark>**0.359**</mark> | 31.57% | 0.294 |
+| **MegaCapsTech** | 36.58% | 0.268 | <mark>**37.54%**</mark> | <mark>**0.287**</mark> |
+| **TradicionaisGlobais** | 41.78% | 0.222 | <mark>**41.85%**</mark> | <mark>**0.236**</mark> |
+| **CambioGlobal** | <mark>**82.70%**</mark> | <mark>**0.301**</mark> | <mark>**82.70%**</mark> | <mark>**0.301**</mark> |
 
 #### Efeitos do Data Augmentation (Mercado Brasileiro)
 Repetimos o protocolo em cima dos dados originais da B3 para aferir se o ruído sintético mitigava o grande colapso da MSR-CNN nas ações muito voláteis.
@@ -95,10 +95,10 @@ Repetimos o protocolo em cima dos dados originais da B3 para aferir se o ruído 
 | Segmento (B3) | Baseline CNN | | MSR-CNN Clássico | |
 |---|---|---|---|---|
 | | **Acc** | **F1** | **Acc** | **F1** |
-| **Blue Chips**| 32.14% | 0.236 | **33.55%** | **0.261** |
-| **Small Caps** | 34.06% | 0.229 | **44.15%** | **0.241** |
-| **FIIs** | **62.18%** | 0.271 | 61.47% | **0.277** |
-| **BDRs** | 32.21% | **0.245** | **32.40%** | 0.243 |
+| **Blue Chips**| 32.14% | 0.236 | <mark>**33.55%**</mark> | <mark>**0.261**</mark> |
+| **Small Caps** | 34.06% | 0.229 | <mark>**44.15%**</mark> | <mark>**0.241**</mark> |
+| **FIIs** | <mark>**62.18%**</mark> | 0.271 | 61.47% | <mark>**0.277**</mark> |
+| **BDRs** | 32.21% | <mark>**0.245**</mark> | <mark>**32.40%**</mark> | 0.243 |
 
 ---
 
