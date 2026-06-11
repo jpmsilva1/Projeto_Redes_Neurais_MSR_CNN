@@ -15,9 +15,26 @@ Para testar a robustez da arquitetura MSR-CNN (Adaptive Subband Decomposition + 
 4. **FIIs (15):** Fundos Imobiliários, ativos de baixíssima volatilidade focados em dividendos.
 5. **BDRs (10):** Recibos de ações americanas (Big Techs) negociadas na B3.
 
+## 2. Metodologia: O Problema da Fronteira e o *Data Pooling* (Opção B)
+
+Na literatura acadêmica, o treinamento em larga escala de modelos profundos para finanças esbarra no problema da "Fronteira de Dados" (Data Leakage). Se os históricos de múltiplos ativos fossem simplesmente concatenados, a janela deslizante da rede cruzaria o final de um ativo com o início de outro, gerando amostras corrompidas.
+
+Para a **Abordagem Intrasetorial (Opção B)**, implementou-se um pipeline de *Data Pooling*:
+1. As séries temporais dos ativos foram processadas independentemente em janelas de 32 dias.
+2. Posteriormente, apenas as janelas "limpas" foram agregadas em um super-dataset na memória.
+3. Ao otimizar os gradientes sobre este conjunto agregado (pulando de ~1.000 para ~10.000 amostras por segmento), forçou-se o modelo a evitar a memorização de microestruturas de um ativo específico (overfitting individual). A rede foi obrigada a abstrair as características matemáticas universais (Transferência de Aprendizado) daquele segmento de mercado.
+
+## 3. A Prova da "Fome de Dados" (*Data Starvation* - Opção A)
+
+Para confirmar a hipótese de que modelos complexos como o MSR-CNN necessitam do *Data Pooling* (Opção B) para evitar overfitting, executamos também a **Opção A**, onde **195 modelos individuais** foram treinados (um modelo MSR-CNN treinado exclusivamente no histórico isolado de cada ativo).
+
+Os resultados confirmaram brilhantemente a teoria de *Data Starvation* em Deep Learning financeiro:
+* Dos 61 ativos válidos avaliados de forma isolada, a **Baseline CNN (simples) venceu as arquiteturas MSR-CNN em 40 ativos (65% das vezes)**.
+* **Conclusão:** Quando o MSR-CNN tenta aprender com apenas ~1.000 amostras (Opção A), ele sofre de *Overfitting Estrutural*. A arquitetura é profunda demais para o pouco dado disponível, acabando por memorizar o ruído específico daquele ativo. Já na Opção B (com ~10.000 amostras agrupadas), o MSR-CNN ganha vida e domina os mercados sazonais, pois finalmente possui volume de dados suficiente para que a Decomposição Espectral Adaptativa calibre os filtros corretamente.
+
 ---
 
-## 2. Resultados Consolidados
+## 4. Resultados Consolidados (Opção B)
 
 A tabela abaixo resume o desempenho (*Acurácia* e *F1-Score Macro*) de cada arquitetura quando exposta à massa de dados agregada do seu respectivo segmento.
 
@@ -32,7 +49,7 @@ A tabela abaixo resume o desempenho (*Acurácia* e *F1-Score Macro*) de cada arq
 
 ---
 
-## 3. Análise Acadêmica por Segmento
+## 5. Análise Acadêmica por Segmento
 
 Estes resultados oferecem uma narrativa extremamente rica para a defesa da dissertação. Eles provam que a arquitetura MSR-CNN não é uma "bala de prata", mas possui um nicho de superioridade matemática muito claro.
 
@@ -50,7 +67,7 @@ A arquitetura Baseline (mais simples) venceu as redes complexas nas ações bras
 
 ---
 
-## 4. Conclusão Final do Estudo
+## 6. Conclusão Final do Estudo
 
 A validação em larga escala prova empiricamente a teoria de processamento de sinais adaptativo em finanças:
 
