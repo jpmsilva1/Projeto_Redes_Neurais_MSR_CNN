@@ -195,7 +195,15 @@ Todos os três modelos apresentam recall muito baixo para SELL. Isso ocorre porq
 2. **Velocidade das quedas:** Movimentos de queda são tipicamente mais rápidos e violentos que movimentos de alta, dificultando a captura por modelos que utilizam janelas fixas de 32 dias.
 3. **Desbalanceamento de classes:** A proporção natural de amostras SELL é frequentemente menor que BUY e HOLD, reduzindo o material de aprendizado disponível.
 
-### 7.4 Limitações e Trabalhos Futuros
+### 7.4 Dinâmica de Aprendizado e Prevenção de Overfitting
+
+A análise das curvas de aprendizado (Loss vs Épocas) revelou uma característica fundamental de séries temporais financeiras: a baixíssima relação Sinal/Ruído (SNR) induz modelos profundos ao *overfitting* de forma extremamente rápida. 
+
+Durante os treinamentos, observou-se que o *Sweet Spot* (ponto de menor erro de validação antes da curva divergir) ocorreu frequentemente entre a 1ª e a 3ª época. Após esse ponto, as arquiteturas MSR-CNN começam a memorizar o ruído estocástico do mercado, reduzindo agressivamente a perda de treinamento enquanto a perda de validação explode.
+
+Para mitigar esse problema crítico, a implementação baseou-se em um mecanismo de **Early Stopping via Validação Cruzada**. A rede foi programada para salvar os pesos (`.pt`) exclusivamente na época em que a métrica `best_val_loss` foi atingida. Isso garante que, embora o treinamento tenha prosseguido (mostrando o comportamento clássico de *overfitting*), **as instâncias finais utilizadas nas avaliações e inferências deste relatório foram extraídas exatamente do ponto ótimo de generalização**, protegendo os resultados do viés de memorização.
+
+### 7.5 Limitações e Trabalhos Futuros
 
 - **Dados exógenos:** A inclusão de variáveis macroeconômicas (taxa SELIC, câmbio, VIX) poderia melhorar a captura de regimes.
 - **Ensemble com recalibração:** Combinar os 3 modelos via stacking ou voting poderia mitigar fraquezas individuais.
