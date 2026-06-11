@@ -17,11 +17,16 @@ Para testar a robustez da arquitetura MSR-CNN (Adaptive Subband Decomposition + 
 
 ## 2. Metodologia: O Problema da Fronteira e o *Data Pooling* (Opção B)
 
-Na literatura acadêmica, o treinamento em larga escala de modelos profundos para finanças esbarra no problema da "Fronteira de Dados" (Data Leakage). Se os históricos de múltiplos ativos fossem simplesmente concatenados, a janela deslizante da rede cruzaria o final de um ativo com o início de outro, gerando amostras corrompidas.
+### 2.1 Fundamentação Teórica
+A literatura recente sobre Deep Learning aplicado a finanças destaca três desafios fundamentais na modelagem de ativos individuais:
+1. **Data Leakage (Vazamento de Dados):** Conforme amplamente discutido em pesquisas de previsão quantitativa (López de Prado, 2018), abordagens ingênuas de junção de dados frequentemente causam *Temporal Leakage* ou *Cross-sectional Leakage*, onde a rede inadvertidamente "enxerga" o futuro durante o treino ao cruzar as pontas das séries. A separação estrita de janelas antes do agrupamento evita a contaminação cruzada.
+2. **Data Starvation e Baixa Relação Sinal/Ruído (SNR):** Modelos profundos (como CNNs e Transformers) sofrem de *Data Starvation* quando aplicados a uma única série temporal financeira diária (~1000 a 2000 dias úteis), resultando em memorização de ruído (Overfitting). Sirignano & Cont (2019), em seu seminal estudo *Universal features of price formation in financial markets*, demonstraram empiricamente que treinar redes profundas com *pooled data* de milhares de ativos gera representações universais muito mais generalizáveis do que redes treinadas num único papel.
+3. **Cross-Asset Modeling e Regularização:** O agrupamento intra-setorial (*Pooling*) age como um poderoso regularizador de dimensão temporal. A ampla revisão literária de Sezer et al. (2020) aponta que otimizar o modelo sobre múltiplos ativos simultâneos força a rede a abstrair a inércia estrutural comum do mercado (macrotendência), ignorando ruídos microestruturais específicos de um só ticker e mitigando o clássico overfitting financeiro.
 
-Para a **Abordagem Intrasetorial (Opção B)**, implementou-se um pipeline de *Data Pooling*:
+### 2.2 Implementação do *Data Pooling*
+Para a **Abordagem Intrasetorial (Opção B)**, implementou-se um pipeline rigoroso de *Data Pooling* baseado nessa fundamentação:
 1. As séries temporais dos ativos foram processadas independentemente em janelas de 32 dias.
-2. Posteriormente, apenas as janelas "limpas" foram agregadas em um super-dataset na memória.
+2. Posteriormente, apenas as janelas "limpas" (internas a cada ativo) foram agregadas em um super-dataset na memória.
 3. Ao otimizar os gradientes sobre este conjunto agregado (pulando de ~1.000 para ~10.000 amostras por segmento), forçou-se o modelo a evitar a memorização de microestruturas de um ativo específico (overfitting individual). A rede foi obrigada a abstrair as características matemáticas universais (Transferência de Aprendizado) daquele segmento de mercado.
 
 ## 3. A Prova da "Fome de Dados" (*Data Starvation* - Opção A)
@@ -73,3 +78,11 @@ A validação em larga escala prova empiricamente a teoria de processamento de s
 
 1. **Quando Usar MSR-CNN:** Em mercados com fundamentos macroeconômicos fortes e ciclos direcionais claros (Mercados Globais, Techs e Commodities). Nesses ativos, a decomposição em Sazonalidade e Tendência oferece uma vantagem preditiva real.
 2. **Quando Usar Baseline:** Em mercados emergentes voláteis e especulativos (Small Caps BR), onde a aleatoriedade domina. Modelos mais simples evitam o overfitting ao ruído estocástico.
+
+---
+
+## 7. Referências Bibliográficas
+
+*   **López de Prado, M. (2018).** *Advances in Financial Machine Learning*. John Wiley & Sons. (Referência principal para estruturação de pipelines, *Temporal/Cross-sectional Leakage* e validação cruzada purgada em séries temporais financeiras).
+*   **Sezer, O. B., Gudelek, M. U., & Ozbayoglu, A. M. (2020).** Financial time series forecasting with deep learning: A systematic literature review: 2005–2019. *Applied Soft Computing*, 90, 106181. https://doi.org/10.1016/j.asoc.2020.106181
+*   **Sirignano, J., & Cont, R. (2019).** Universal features of price formation in financial markets: perspectives from deep learning. *Quantitative Finance*, 19(9), 1449–1459. https://doi.org/10.1080/14697688.2019.1622295
