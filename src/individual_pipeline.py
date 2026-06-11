@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score, f1_score
 
 # Importar nossas arquiteturas e funções existentes
-from models import BaselineCNN1D, MSRCNN1D, MSRCNNAttention1D
+from models import BaselineCNN1D, MSRCNN1D
 from train import FocalLoss
 from bulk_pipeline import SEGMENTS, DATA_DIR, CHECKPOINT_DIR, SegmentTimeSeriesDataset
 
@@ -25,10 +25,7 @@ def train_and_eval_individual_model(model_class, model_name, ticker, train_loade
         for X, y in train_loader:
             X, y = X.to(device), y.to(device)
             optimizer.zero_grad()
-            if model_name == 'MSRCNNAttention':
-                outputs, _ = model(X)
-            else:
-                outputs = model(X)
+            outputs = model(X)
             loss = criterion(outputs, y)
             loss.backward()
             optimizer.step()
@@ -39,10 +36,7 @@ def train_and_eval_individual_model(model_class, model_name, ticker, train_loade
         with torch.no_grad():
             for X, y in val_loader:
                 X, y = X.to(device), y.to(device)
-                if model_name == 'MSRCNNAttention':
-                    outputs, _ = model(X)
-                else:
-                    outputs = model(X)
+                outputs = model(X)
                 loss = criterion(outputs, y)
                 val_loss += loss.item() * X.size(0)
         
@@ -59,10 +53,7 @@ def train_and_eval_individual_model(model_class, model_name, ticker, train_loade
     with torch.no_grad():
         for X, y in test_loader:
             X, y = X.to(device), y.to(device)
-            if model_name == 'MSRCNNAttention':
-                outputs, _ = model(X)
-            else:
-                outputs = model(X)
+            outputs = model(X)
             _, predicted = torch.max(outputs, 1)
             all_preds.extend(predicted.cpu().numpy())
             all_targets.extend(y.cpu().numpy())
@@ -107,23 +98,21 @@ def main():
             
             acc_base, f1_base = train_and_eval_individual_model(BaselineCNN1D, 'Baseline', safe_ticker, train_loader, val_loader, test_loader, device)
             acc_msr, f1_msr = train_and_eval_individual_model(MSRCNN1D, 'MSRCNN', safe_ticker, train_loader, val_loader, test_loader, device)
-            acc_att, f1_att = train_and_eval_individual_model(MSRCNNAttention1D, 'MSRCNNAttention', safe_ticker, train_loader, val_loader, test_loader, device)
             
             results.append({
                 'Segmento': segment,
                 'Ativo': ticker,
                 'Baseline_Acc': acc_base, 'Baseline_F1': f1_base,
-                'MSRCNN_Acc': acc_msr, 'MSRCNN_F1': f1_msr,
-                'Attention_Acc': acc_att, 'Attention_F1': f1_att
+                'MSRCNN_Acc': acc_msr, 'MSRCNN_F1': f1_msr
             })
             
     print("\nConsolidando Resultados Individuais...")
     df_results = pd.DataFrame(results)
     df_results.to_csv('results/individual_comparativo.csv', index=False)
     
-    # Gerando um resumo de vitórias do MSRCNN_Attention
-    df_results['Winner_Acc'] = df_results[['Baseline_Acc', 'MSRCNN_Acc', 'Attention_Acc']].idxmax(axis=1)
-    df_results['Winner_F1'] = df_results[['Baseline_F1', 'MSRCNN_F1', 'Attention_F1']].idxmax(axis=1)
+    # Gerando um resumo de vitórias
+    df_results['Winner_Acc'] = df_results[['Baseline_Acc', 'MSRCNN_Acc']].idxmax(axis=1)
+    df_results['Winner_F1'] = df_results[['Baseline_F1', 'MSRCNN_F1']].idxmax(axis=1)
     
     print("\nEstatísticas de Vitória por Acurácia:")
     print(df_results['Winner_Acc'].value_counts())

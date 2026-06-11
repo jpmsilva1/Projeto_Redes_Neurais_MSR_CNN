@@ -28,7 +28,7 @@ from sklearn.metrics import (
     accuracy_score,
     f1_score,
 )
-from models import BaselineCNN1D, MSRCNN1D, MSRCNNAttention1D
+from models import BaselineCNN1D, MSRCNN1D
 from train import TimeSeriesDataset
 from torch.utils.data import DataLoader
 
@@ -98,10 +98,7 @@ def run_inference(model, test_loader, device, is_attention=False):
     with torch.no_grad():
         for X, y in test_loader:
             X, y = X.to(device), y.to(device)
-            if is_attention:
-                outputs, _ = model(X)
-            else:
-                outputs = model(X)
+            outputs = model(X)
 
             probs = torch.softmax(outputs, dim=1)
             _, predicted = torch.max(outputs, 1)
@@ -264,8 +261,6 @@ def main():
              f'checkpoints/baseline_{ticker}.pt', False),
             ('MSR-CNN Clássico', MSRCNN1D(IN_CHANNELS, seq_len=WINDOW_SIZE),
              f'checkpoints/msrcnn_{ticker}.pt', False),
-            ('MSR-CNN Attention', MSRCNNAttention1D(IN_CHANNELS, seq_len=WINDOW_SIZE),
-             f'checkpoints/msrcnn_attn_{ticker}.pt', True),
         ]
 
         ticker_results = []
@@ -294,8 +289,8 @@ def main():
             plot_confusion_matrix(targets, preds, model_name, ticker, cm_path)
             print(f"    Matriz de Confusão salva: {cm_path}")
 
-            # ── Gráfico Temporal (somente para MSR-CNN Attention) ──
-            if is_attn:
+            # ── Gráfico Temporal (apenas para MSR-CNN Clássico para substituir) ──
+            if model_name == 'MSR-CNN Clássico':
                 temp_path = f"{RESULTS_DIR}/temporal_{safe_name}_{ticker}.png"
                 plot_temporal_predictions(
                     sample_dates, sample_prices, preds, targets,

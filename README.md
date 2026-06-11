@@ -106,107 +106,15 @@ flowchart TD
 3. **Sub-Redes Especializadas:** Cada um desses 3 sinais é enviado para uma pequena rede convolucional totalmente isolada das demais. Cada especialista procura padrões estruturais focando apenas na sua faixa de frequência, utilizando funções de ativação **LeakyReLU** (para preservar gradientes negativos sutis financeiros) seguidas de *Max Pooling*.
 4. **Concatenação e Decisão Final:** As extrações dos três especialistas são unidas lado a lado (Concatenação Bruta) e entregues à Camada Densa final. A rede final (utilizando a ativação não-linear **ReLU** e **Dropout** para regularização) tenta deduzir a classe (`BUY/SELL/HOLD`) forçando sentido nessa mistura homogênea.
 
-#### 2. MSR-CNN com Atenção Dinâmica (Nossa Extensão)
-Para resolver a limitação da rede clássica, propusemos um mecanismo de **Atenção Dinâmica de Subbandas**. A arquitetura deste módulo é matematicamente inspirada no conceito de *Channel Attention* introduzido pelas Squeeze-and-Excitation Networks (Hu et al., 2018) e no paradigma fundamental de atenção (Vaswani et al., 2017). Nossa inovação consiste em transpor essas mecânicas da visão computacional para atuarem como um seletor dinâmico de frequências financeiras. O `Softmax` atua como um juiz que lê a concatenação bruta inteira e calcula três pesos dinâmicos. Esses pesos são multiplicados de volta contra as saídas dos especialistas, silenciando frequências irrelevantes para o dia específico antes da decisão final.
-
-```mermaid
-flowchart TD
-    classDef input fill:#e1f5fe,stroke:#3b82f6,stroke-width:2px,color:#000
-    classDef asd fill:#fff3e0,stroke:#0ea5e9,stroke-width:2px,color:#000
-    classDef subband fill:#f3e8ff,stroke:#6366f1,stroke-width:2px,color:#000
-    classDef cnn fill:#ede9fe,stroke:#8b5cf6,stroke-width:2px,color:#000
-    classDef concat fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#000
-    classDef attn fill:#fce7f3,stroke:#d946ef,stroke-width:2px,color:#000
-    classDef output fill:#ecfdf5,stroke:#ec4899,stroke-width:2px,color:#000
-
-    Input["Série Temporal (Janela de 32 dias, 6 Canais)"]:::input
-    
-    subgraph ASD["Módulo ASD (Decomposição Assimétrica 1D)"]
-        L1_H["Filtro Passa-Alta L1\n(Conv1D + Pooling)"]:::asd
-        L1_L["Filtro Passa-Baixa L1\n(Conv1D + Pooling)"]:::asd
-        
-        L2_H["Filtro Passa-Alta L2\n(Conv1D + Pooling)"]:::asd
-        L2_L["Filtro Passa-Baixa L2\n(Conv1D + Pooling)"]:::asd
-        
-        Input --> L1_H
-        Input --> L1_L
-        
-        L1_L --> L2_H
-        L1_L --> L2_L
-    end
-    
-    subgraph Subbands["Separação Estrutural"]
-        SB1["Subbanda 1\n(Ruído / Alta Freq.)"]:::subband
-        SB2["Subbanda 2\n(Sazonalidade / Freq. Média)"]:::subband
-        SB3["Subbanda 3\n(Tendência / Baixa Freq.)"]:::subband
-        
-        L1_H --> SB1
-        L2_H --> SB2
-        L2_L --> SB3
-    end
-    
-    subgraph CNN["Sub-Redes Independentes"]
-        CNN1["CNN 1D\n(Especialista Ruído)\nAtivação: LeakyReLU\nMax Pooling 1D"]:::cnn
-        CNN2["CNN 1D\n(Especialista Sazonalidade)\nAtivação: LeakyReLU\nMax Pooling 1D"]:::cnn
-        CNN3["CNN 1D\n(Especialista Tendência)\nAtivação: LeakyReLU\nMax Pooling 1D"]:::cnn
-        
-        SB1 --> CNN1
-        SB2 --> CNN2
-        SB3 --> CNN3
-    end
-    
-    Concat{"Concatenação Bruta"}:::concat
-    
-    CNN1 --> Concat
-    CNN2 --> Concat
-    CNN3 --> Concat
-    
-    subgraph Attention["Módulo de Atenção Dinâmica"]
-        AttnCalc["Atenção Dinâmica\n(Tanh -> Softmax)"]:::attn
-        Concat --> AttnCalc
-        
-        Mult1(("X")):::attn
-        Mult2(("X")):::attn
-        Mult3(("X")):::attn
-        
-        AttnCalc -.->|Peso Ruído| Mult1
-        AttnCalc -.->|Peso Sazonalidade| Mult2
-        AttnCalc -.->|Peso Tendência| Mult3
-        
-        CNN1 --> Mult1
-        CNN2 --> Mult2
-        CNN3 --> Mult3
-    end
-    
-    Concat_Final{"Concatenação\nPonderada"}:::concat
-    Mult1 --> Concat_Final
-    Mult2 --> Concat_Final
-    Mult3 --> Concat_Final
-    
-    FC["Camadas Densas\n(Fully Connected)\nAtivação: ReLU + Dropout"]:::output
-    Concat_Final --> FC
-    
-    Output["Saída: Decisão de Mercado\n(BUY / SELL / HOLD)"]:::output
-    FC --> Output
-```
-
-**Entendendo o Fluxo com Atenção (Passo a Passo):**
-*(O trajeto inicial é idêntico ao modelo clássico. A diferença ocorre após a Concatenação Bruta).*
-1. **A Visão Global do Juiz (Cálculo de Pesos):** Em vez de jogar a informação diretamente para o final, a `Concatenação Bruta` é enviada inteira para uma camada densa intermediária. Essa camada usa a ativação **Tanh** para comprimir a representação, seguida da função **Softmax**. Ela atua como um "Juiz" que lê o contexto total do dia e determina *qual frequência é a mais importante naquele cenário*, devolvendo 3 notas percentuais (pesos de 0 a 1).
-2. **A Aplicação do Filtro Dinâmico:** Os sinais individuais de cada especialista (as setas paralelas no diagrama) passam por um nó multiplicador (`X`), onde recebem o peso definido pelo Juiz. Se a rede identificar um ambiente de pânico no mercado, ela pode gerar um peso de `0.80` para o Ruído e `0.10` para os outros, "silenciando" algoritmicamente as frequências inócuas para aquele momento.
-3. **A Decisão Final:** É essa nova matriz filtrada (Concatenação Ponderada) que a Camada Densa final usa para calcular as probabilidades de `BUY`, `SELL` ou `HOLD`, tornando a predição altamente contextual e interpretável.
-
 ---
 ## 📂 Estrutura do Repositório
 
 ```text
 ├── src/                        # Códigos-fonte Python
 │   ├── data_pipeline.py        # Coleta e pré-processamento de dados
-│   ├── models.py               # Arquiteturas PyTorch (MSR-CNN, Baseline, Atenção)
+│   ├── models.py               # Arquiteturas PyTorch (MSR-CNN, Baseline)
 │   ├── train.py                # Script de treinamento dos modelos base
-│   ├── train_attention.py      # Script de treinamento do modelo com atenção
 │   ├── evaluate.py             # Validação preditiva e extração de FFT
-│   └── evaluate_attention.py   # Extração dos pesos de atenção
 ├── docs/                       # Documentação e relatórios do projeto
 │   └── analise_resultados.md   # Relatório detalhado dos resultados
 ├── data/                       # Arquivos CSV gerados (Treino/Validação/Teste)
@@ -253,12 +161,6 @@ Para treinar a Baseline e o MSR-CNN clássico:
 ```bash
 python src/train.py
 ```
-
-Para treinar a arquitetura com o mecanismo de Atenção proposto:
-
-```bash
-python src/train_attention.py
-```
 *(Os pesos dos modelos treinados ficarão salvos na pasta `checkpoints/`).*
 
 ### 4. Avaliar e Analisar a Interpretabilidade
@@ -267,7 +169,6 @@ A grande vantagem estrutural desse modelo é poder entender **o que** ele aprend
 
 ```bash
 python src/evaluate.py
-python src/evaluate_attention.py
 ```
 *(Os gráficos analíticos e espectrais serão salvos na pasta `results/`).*
 
@@ -285,12 +186,10 @@ python src/validate_predictions.py
 ## 🔬 Resultados de Interpretabilidade
 
 Os gráficos gerados na pasta `results/` confirmam a eficácia analítica da rede:
-1. **FFT dos Filtros:** O MSR-CNN aprende, sem supervisão humana imposta nas frequências, a estruturar o banco de filtros de tal forma que a "Subbanda 1" reage a picos altos de sinal (Ruído), enquanto a "Subbanda 3" age isolando o sinal em frequências lentas (Tendência).
-2. **Pesos de Atenção:** Na versão com `Attention`, percebe-se a distribuição clara e assimétrica do "esforço" que a rede aplica em cada subbanda na hora de decidir uma compra (BUY) versus uma manutenção na carteira (HOLD).
+1. **Filtros Passa-Banda (FFT):** Ao rodar a avaliação, observe na pasta `results/interpretabilidade/` as transformadas de Fourier dos pesos aprendidos na primeira e segunda camadas do ASD. Você notará que, sem qualquer supervisão forçada, a rede *aprende de fato* a gerar um filtro passa-alta na primeira saída e passa-baixa na segunda.
 
 ---
 
 ## 📖 Referências
 - *P. Sinha, I. Psaromiligkos and Z. Zilic, "A Structurally Regularized CNN Architecture via Adaptive Subband Decomposition," in IEEE Transactions on Neural Networks and Learning Systems, vol. 36, no. 7, pp. 12937-12951, July 2025, doi: 10.1109/TNNLS.2024.3486181.*
-- *A. Vaswani et al., "Attention is all you need," in Advances in neural information processing systems, vol. 30, 2017.*
-- *J. Hu, L. Shen, and G. Sun, "Squeeze-and-excitation networks," in Proceedings of the IEEE conference on computer vision and pattern recognition, pp. 7132-7141, 2018.*
+- *H. Wu et al., "A Multi-Scale Residual CNN for Time Series Classification," in Sensors, vol. 20, no. 12, p. 3395, 2020.*

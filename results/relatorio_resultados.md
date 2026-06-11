@@ -11,11 +11,8 @@ Este relatório apresenta os resultados da validação temporal dos três modelo
 
 ### Modelos Avaliados
 
-| Modelo | Descrição | Módulo ASD | Atenção |
-|---|---|---|---|
-| **Baseline CNN 1D** | CNN convencional full-band (controle experimental) | ❌ | ❌ |
-| **MSR-CNN Clássico** | Separação em 3 subbandas + CNNs independentes | ✅ | ❌ |
-| **MSR-CNN Attention** | Subbandas + Atenção Dinâmica (extensão original) | ✅ | ✅ |
+| **Baseline CNN 1D** | CNN convencional full-band (controle experimental) | ❌ |
+| **MSR-CNN Clássico** | Separação em 3 subbandas + CNNs independentes | ✅ |
 
 ### Ativos Avaliados
 
@@ -39,13 +36,13 @@ O alvo (label) de cada amostra é definido pelo retorno percentual acumulado nos
 
 A tabela abaixo resume a acurácia e o F1-Score Macro de cada modelo em cada ativo:
 
-| Ticker | Baseline CNN | | MSR-CNN Clássico | | MSR-CNN Attention | |
-|---|---|---|---|---|---|---|
-| | **Acc** | **F1** | **Acc** | **F1** | **Acc** | **F1** |
-| ^BVSP | 41.7% | 0.31 | 25.0% | 0.13 | 37.9% | 0.29 |
-| PETR4.SA | 44.3% | 0.30 | 43.2% | 0.32 | 44.3% | 0.20 |
-| VALE3.SA | 31.7% | 0.18 | 31.9% | 0.19 | 31.1% | 0.16 |
-| ITUB4.SA | 36.5% | 0.34 | 36.3% | 0.25 | 34.7% | 0.31 |
+| Ticker | Baseline CNN | | MSR-CNN Clássico | |
+|---|---|---|---|---|
+| | **Acc** | **F1** | **Acc** | **F1** |
+| ^BVSP | 41.7% | 0.31 | 25.0% | 0.13 |
+| PETR4.SA | 44.3% | 0.30 | 43.2% | 0.32 |
+| VALE3.SA | 31.7% | 0.18 | 31.9% | 0.19 |
+| ITUB4.SA | 36.5% | 0.34 | 36.3% | 0.25 |
 
 ### Como interpretar:
 - **Acurácia (Acc):** Percentual de previsões corretas sobre o total. Para um classificador de 3 classes, uma acurácia aleatória seria ~33%.
@@ -79,43 +76,20 @@ Cada gráfico mostra a **Transformada Rápida de Fourier (FFT)** dos pesos convo
 
 ---
 
-## 4. Pesos de Atenção Dinâmica
-
-A extensão proposta neste trabalho (Módulo de Atenção) permite visualizar **quanto peso** a rede atribui a cada subbanda (Ruído, Sazonalidade, Tendência) dependendo da classe prevista.
-
-### Matrizes de Pesos de Atenção
-
-![Pesos de Atenção — BVSP](interpretabilidade/attention_weights_BVSP.png)
-
-![Pesos de Atenção — PETR4.SA](interpretabilidade/attention_weights_PETR4.SA.png)
-
-![Pesos de Atenção — VALE3.SA](interpretabilidade/attention_weights_VALE3.SA.png)
-
-![Pesos de Atenção — ITUB4.SA](interpretabilidade/attention_weights_ITUB4.SA.png)
-
-### Como interpretar as matrizes de atenção:
-
-Cada célula da matriz mostra o peso médio (de 0 a 1) que o modelo atribuiu àquela subbanda quando previu aquela classe. Os pesos de cada linha somam aproximadamente 1.0 (normalização via Softmax).
-
-- **Valores altos em "Tendência" para BUY:** Indicam que, quando o modelo decide comprar, ele está priorizando o sinal de longo prazo — consistente com a hipótese de que movimentos direcionais sustentados geram oportunidades de compra.
-- **Valores altos em "Ruído" para HOLD:** Sugerem que, em momentos de lateralização, o modelo detecta que o sinal dominante é ruído estocástico e opta por não agir.
-- **Distribuição uniforme (~0.33 em tudo):** Indica que o modelo não conseguiu encontrar um padrão claro de diferenciação entre subbandas para aquela classe específica.
-
----
 
 ## 5. Validação Temporal (Previsões vs. Realidade)
 
-Os gráficos temporais sobrepõem as previsões do modelo MSR-CNN Attention ao preço real de fechamento do ativo durante todo o período de teste.
+Os gráficos temporais sobrepõem as previsões do modelo MSR-CNN Clássico ao preço real de fechamento do ativo durante todo o período de teste.
 
 ### Gráficos Temporais
 
-![Validação Temporal — BVSP](validation/temporal_msr-cnn_attention_BVSP.png)
+![Validação Temporal — BVSP](validation/temporal_msr-cnn_clássico_BVSP.png)
 
-![Validação Temporal — PETR4.SA](validation/temporal_msr-cnn_attention_PETR4.SA.png)
+![Validação Temporal — PETR4.SA](validation/temporal_msr-cnn_clássico_PETR4.SA.png)
 
-![Validação Temporal — VALE3.SA](validation/temporal_msr-cnn_attention_VALE3.SA.png)
+![Validação Temporal — VALE3.SA](validation/temporal_msr-cnn_clássico_VALE3.SA.png)
 
-![Validação Temporal — ITUB4.SA](validation/temporal_msr-cnn_attention_ITUB4.SA.png)
+![Validação Temporal — ITUB4.SA](validation/temporal_msr-cnn_clássico_ITUB4.SA.png)
 
 ### Como interpretar os gráficos temporais:
 
@@ -151,11 +125,7 @@ As matrizes de confusão mostram, para cada modelo, a distribuição dos acertos
 
 ![Matriz de Confusão — MSR-CNN Clássico — ITUB4.SA](validation/confusion_msr-cnn_clássico_ITUB4.SA.png)
 
-### MSR-CNN Attention
 
-![Matriz de Confusão — MSR-CNN Attention — BVSP](validation/confusion_msr-cnn_attention_BVSP.png)
-
-![Matriz de Confusão — MSR-CNN Attention — ITUB4.SA](validation/confusion_msr-cnn_attention_ITUB4.SA.png)
 
 ### Como interpretar as Matrizes de Confusão:
 
@@ -184,7 +154,6 @@ Os resultados mostram que a previsão direcional de ativos financeiros é um pro
 O valor central deste trabalho não reside exclusivamente na acurácia preditiva, mas na **interpretabilidade estrutural** que a arquitetura MSR-CNN proporciona:
 
 - **Os gráficos FFT provam** que a rede aprendeu, sem supervisão, a criar filtros espectrais coerentes com a teoria econômica.
-- **Os pesos de atenção revelam** como a rede pondera diferentes horizontes temporais dependendo do regime de mercado.
 - **A decomposição em subbandas permite** que analistas entendam *por que* o modelo tomou uma decisão, não apenas *qual* decisão tomou.
 
 ### 7.3 Dificuldade com a Classe SELL
@@ -217,12 +186,11 @@ Para mitigar esse problema crítico, a implementação baseou-se em um mecanismo
 | Arquivo | Descrição |
 |---|---|
 | `interpretabilidade/fft_filters_*.png` | Resposta em frequência dos filtros ASD aprendidos |
-| `interpretabilidade/attention_weights_*.png` | Pesos médios de atenção por classe predita |
 
 ### Validação Temporal (`results/validation/`)
 | Arquivo | Descrição |
 |---|---|
-| `temporal_msr-cnn_attention_*.png` | Previsões sobrepostas ao preço real |
+| `temporal_msr-cnn_clássico_*.png` | Previsões sobrepostas ao preço real |
 | `confusion_*_*.png` | Matrizes de confusão por modelo e ativo |
 | `detalhado_*_*.csv` | CSV com cada previsão individual (data, preço, retorno real, previsão, probabilidades) |
 | `tabela_comparativa.csv` | Resumo de acurácia e F1 de todos os modelos |

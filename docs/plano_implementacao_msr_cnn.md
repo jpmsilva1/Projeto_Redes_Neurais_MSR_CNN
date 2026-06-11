@@ -52,9 +52,6 @@ Baseado na decomposição clássica de séries temporais, usaremos uma **decompo
 - Script de teste (`evaluate.py`) para medir os resultados no conjunto de validação/teste.
 - Utilizar FFT (Transformada Rápida de Fourier) para plotar e salvar os gráficos das respostas em frequência dos filtros, demonstrando visualmente o aprendizado de Ruído, Sazonalidade e Tendência.
 
-### Fase 5: Extensão da Atenção entre Subbandas
-- Modificar o `models.py` para incluir a variante MSR-CNN-Attention.
-- Retreinar o novo modelo, salvar os resultados localmente e extrair visualizações de como o modelo atribuiu atenção para as diferentes subbandas (frequências) durante crises de mercado versus períodos de estabilidade.
 
 ## Verification Plan
 

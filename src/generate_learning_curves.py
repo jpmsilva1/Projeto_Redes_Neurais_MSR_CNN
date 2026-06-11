@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import os
 import seaborn as sns
 
-from models import BaselineCNN1D, MSRCNN1D, MSRCNNAttention1D
+from models import BaselineCNN1D, MSRCNN1D
 from train import TimeSeriesDataset, FocalLoss
 
 def train_and_plot(model, model_name, ticker, train_loader, val_loader, device, epochs=30, lr=1e-3):
@@ -30,10 +30,7 @@ def train_and_plot(model, model_name, ticker, train_loader, val_loader, device, 
             X, y = X.to(device), y.to(device)
             optimizer.zero_grad()
             
-            if model_name == 'MSRCNNAttention':
-                outputs, _ = model(X)
-            else:
-                outputs = model(X)
+            outputs = model(X)
                 
             loss = criterion(outputs, y)
             loss.backward()
@@ -52,10 +49,7 @@ def train_and_plot(model, model_name, ticker, train_loader, val_loader, device, 
             for X, y in val_loader:
                 X, y = X.to(device), y.to(device)
                 
-                if model_name == 'MSRCNNAttention':
-                    outputs, _ = model(X)
-                else:
-                    outputs = model(X)
+                outputs = model(X)
                     
                 loss = criterion(outputs, y)
                 val_loss += loss.item() * X.size(0)
@@ -135,11 +129,6 @@ def main():
         print("Treinando MSR-CNN Clássico...")
         model_msrcnn = MSRCNN1D(in_channels, seq_len=window_size).to(device)
         train_and_plot(model_msrcnn, 'MSRCNN_Classico', ticker, train_loader, val_loader, device, epochs=epochs)
-        
-        # MSR-CNN Attention
-        print("Treinando MSR-CNN Attention...")
-        model_attn = MSRCNNAttention1D(in_channels, seq_len=window_size).to(device)
-        train_and_plot(model_attn, 'MSRCNNAttention', ticker, train_loader, val_loader, device, epochs=epochs)
 
 if __name__ == '__main__':
     sns.set_theme(style='darkgrid')

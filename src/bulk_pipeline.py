@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, f1_score
 
 # Importar nossas arquiteturas e funções existentes
-from models import BaselineCNN1D, MSRCNN1D, MSRCNNAttention1D
+from models import BaselineCNN1D, MSRCNN1D
 from train import FocalLoss
 
 # ==========================================
@@ -156,10 +156,7 @@ def train_and_eval_segment_model(model_class, model_name, segment, train_loader,
         for X, y in train_loader:
             X, y = X.to(device), y.to(device)
             optimizer.zero_grad()
-            if model_name == 'MSRCNNAttention':
-                outputs, _ = model(X)
-            else:
-                outputs = model(X)
+            outputs = model(X)
             loss = criterion(outputs, y)
             loss.backward()
             optimizer.step()
@@ -170,10 +167,7 @@ def train_and_eval_segment_model(model_class, model_name, segment, train_loader,
         with torch.no_grad():
             for X, y in val_loader:
                 X, y = X.to(device), y.to(device)
-                if model_name == 'MSRCNNAttention':
-                    outputs, _ = model(X)
-                else:
-                    outputs = model(X)
+                outputs = model(X)
                 loss = criterion(outputs, y)
                 val_loss += loss.item() * X.size(0)
         
@@ -190,10 +184,7 @@ def train_and_eval_segment_model(model_class, model_name, segment, train_loader,
     with torch.no_grad():
         for X, y in test_loader:
             X, y = X.to(device), y.to(device)
-            if model_name == 'MSRCNNAttention':
-                outputs, _ = model(X)
-            else:
-                outputs = model(X)
+            outputs = model(X)
             _, predicted = torch.max(outputs, 1)
             all_preds.extend(predicted.cpu().numpy())
             all_targets.extend(y.cpu().numpy())
@@ -245,14 +236,11 @@ def main():
         acc_base, f1_base = train_and_eval_segment_model(BaselineCNN1D, 'Baseline', segment, train_loader, val_loader, test_loader, device)
         # MSRCNN
         acc_msr, f1_msr = train_and_eval_segment_model(MSRCNN1D, 'MSRCNN', segment, train_loader, val_loader, test_loader, device)
-        # MSRCNNAttention
-        acc_att, f1_att = train_and_eval_segment_model(MSRCNNAttention1D, 'MSRCNNAttention', segment, train_loader, val_loader, test_loader, device)
         
         results.append({
             'Segmento': segment,
             'Baseline_Acc': acc_base, 'Baseline_F1': f1_base,
-            'MSRCNN_Acc': acc_msr, 'MSRCNN_F1': f1_msr,
-            'Attention_Acc': acc_att, 'Attention_F1': f1_att
+            'MSRCNN_Acc': acc_msr, 'MSRCNN_F1': f1_msr
         })
         
     print("\n[3/3] Consolidando Resultados...")

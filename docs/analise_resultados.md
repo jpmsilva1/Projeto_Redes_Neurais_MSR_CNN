@@ -36,19 +36,3 @@ Observando as curvas espectrais, nota-se que a rede organizou espontaneamente (v
 * **Curva Vermelha (Ruído):** Exibe picos nas altas frequências. Atua como um "Passa-Alta", capturando a volatilidade severa e movimentos de microestrutura (ruído diário).
 
 Este resultado valida a utilidade do módulo ASD adaptado para finanças, separando o sinal ruidoso de forma coerente.
-
----
-
-## 3. Extensão do Modelo: Pesos de Atenção Dinâmica
-
-A extensão original aplicada sobre a arquitetura base adiciona uma camada de **Atenção** (*Softmax*) ao final do processamento das 3 subbandas. Os heatmaps abaixo exibem o peso médio distribuído pela rede para as componentes de Ruído, Sazonalidade e Tendência a depender da sua tomada de decisão final (HOLD, BUY ou SELL).
-
-![Atenção - Petrobras](../results/attention_weights_PETR4.SA.png)
-![Atenção - Vale](../results/attention_weights_VALE3.SA.png)
-![Atenção - Itaú](../results/attention_weights_ITUB4.SA.png)
-![Atenção - Ibovespa](../results/attention_weights_BVSP.png)
-
-**Conclusões do Mecanismo de Atenção:**
-* A matriz demonstra que o modelo descobre assimetrias comportamentais no mercado.
-* Em ativos como a **PETR4**, nota-se que o "esforço" analítico para decisões neutras ('HOLD') ou de venda ('SELL') é distribuído de forma homogênea entre as subbandas. No entanto, quando a rede identifica uma oportunidade de compra ('BUY'), ocorre uma variação de peso, concentrando sutilmente mais atenção na subbanda de Sazonalidade.
-* Essa característica torna o modelo não apenas uma ferramenta de predição, mas também um mecanismo de análise sobre **qual tipo de informação espectral governa determinados regimes e decisões de mercado**, agregando extremo valor analítico à previsão financeira.
