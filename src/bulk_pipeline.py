@@ -13,27 +13,28 @@ from sklearn.metrics import accuracy_score, f1_score
 # Importar nossas arquiteturas e funções existentes
 from models import BaselineCNN1D, MSRCNN1D
 from train import FocalLoss
+from augmentation import jittering, magnitude_warping, window_slicing
 
 # ==========================================
-# 1. DEFINIÇÃO DOS SEGMENTOS
+# 1. DEFINIÇÃO DOS SEGMENTOS (Bolsa Brasileira)
 # ==========================================
 SEGMENTS = {
-    'Commodities': ['GC=F', 'SI=F', 'CL=F', 'BZ=F', 'ZS=F', 
-                    'ZC=F', 'KC=F', 'LE=F', 'SB=F', 'HG=F',
-                    'PL=F', 'PA=F', 'CC=F', 'CT=F', 'NG=F'],
-                    
-    'MegaCapsTech': ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 
-                     'META', 'TSLA', 'NFLX', 'ADBE', 'CRM', 
-                     'AMD', 'INTC', 'CSCO', 'QCOM', 'TXN', 
-                     'AVGO', 'AMAT', 'MU', 'LRCX', 'INTU'],
-                     
-    'TradicionaisGlobais': ['JNJ', 'PG', 'XOM', 'CVX', 'JPM', 
-                            'V', 'KO', 'PEP', 'WMT', 'MCD', 
-                            'NKE', 'DIS', 'BA', 'PFE', 'UNH', 
-                            'HD', 'VZ', 'T', 'MRK', 'ABT'],
-                            
-    'CambioGlobal': ['EURUSD=X', 'JPY=X', 'GBPUSD=X', 'AUDUSD=X', 'USDCAD=X', 
-                     'USDCHF=X', 'NZDUSD=X', 'EURGBP=X', 'EURJPY=X', 'BRL=X']
+    'BlueChips': [
+        'PETR4.SA', 'VALE3.SA', 'ITUB4.SA', 'BBDC4.SA', 'ABEV3.SA', 
+        'WEGE3.SA', 'SUZB3.SA', 'RENT3.SA', 'EQTL3.SA', 'RADL3.SA'
+    ],
+    'SmallCaps': [
+        'MGLU3.SA', 'YDUQ3.SA', 'POMO4.SA', 'TEND3.SA', 
+        'TASA4.SA', 'LWSA3.SA', 'MRVE3.SA', 'RAPT4.SA'
+    ],
+    'FIIs': [
+        'KNRI11.SA', 'HGLG11.SA', 'MXRF11.SA', 'XPLG11.SA', 'VISC11.SA',
+        'IRDM11.SA', 'RECR11.SA', 'HGRE11.SA', 'VILG11.SA', 'TGAR11.SA'
+    ],
+    'BDRs': [
+        'AAPL34.SA', 'MSFT34.SA', 'AMZO34.SA', 'GOGL34.SA', 
+        'MELI34.SA', 'TSLA34.SA', 'NVDC34.SA', 'META34.SA'
+    ]
 }
 
 DATA_DIR = './data_bulk'
@@ -108,9 +109,10 @@ def process_ticker_data(ticker):
 # ==========================================
 class SegmentTimeSeriesDataset(Dataset):
     """Junta múltiplos arquivos CSV de ativos diferentes em um único Dataset sem cruzar janelas."""
-    def __init__(self, file_paths, window_size=32):
+    def __init__(self, file_paths, window_size=32, is_train=False):
         self.X = []
         self.y = []
+        self.is_train = is_train
         
         for file_path in file_paths:
             if not os.path.exists(file_path): continue
@@ -135,7 +137,19 @@ class SegmentTimeSeriesDataset(Dataset):
         return len(self.X) if self.X is not None else 0
         
     def __getitem__(self, idx):
-        return self.X[idx].transpose(0, 1), self.y[idx]
+        x = self.X[idx].numpy()
+        y = self.y[idx]
+        
+        if self.is_train and np.random.random() > 0.5:
+            technique = np.random.choice(['jitter', 'warp', 'slice'])
+            if technique == 'jitter':
+                x = jittering(x)
+            elif technique == 'warp':
+                x = magnitude_warping(x)
+            else:
+                x = window_slicing(x)
+                
+        return torch.tensor(x, dtype=torch.float32).transpose(0, 1), y
 
 # ==========================================
 # 4. LOOP DE TREINAMENTO E AVALIAÇÃO
@@ -217,9 +231,9 @@ def main():
         val_files = [f"{DATA_DIR}/{t.replace('^', '').replace('=', '_')}_val.csv" for t in tickers]
         test_files = [f"{DATA_DIR}/{t.replace('^', '').replace('=', '_')}_test.csv" for t in tickers]
         
-        train_dataset = SegmentTimeSeriesDataset(train_files)
-        val_dataset = SegmentTimeSeriesDataset(val_files)
-        test_dataset = SegmentTimeSeriesDataset(test_files)
+        train_dataset = SegmentTimeSeriesDataset(train_files, is_train=True)
+        val_dataset = SegmentTimeSeriesDataset(val_files, is_train=False)
+        test_dataset = SegmentTimeSeriesDataset(test_files, is_train=False)
         
         if len(train_dataset) == 0:
             print(f"Erro: Sem dados para {segment}")
@@ -244,7 +258,7 @@ def main():
         
     print("\n[3/3] Consolidando Resultados...")
     df_results = pd.DataFrame(results)
-    df_results.to_csv('results/segmentos_comparativo.csv', index=False)
+    df_results.to_csv('results/segmentos_comparativo_aug_br.csv', index=False)
     print(df_results)
     print("\nTeste em larga escala concluído com sucesso!")
 
