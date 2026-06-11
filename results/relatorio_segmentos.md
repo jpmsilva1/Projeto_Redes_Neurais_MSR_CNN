@@ -29,6 +29,12 @@ Para a **Abordagem Intrasetorial (Opção B)**, implementou-se um pipeline rigor
 2. Posteriormente, apenas as janelas "limpas" (internas a cada ativo) foram agregadas em um super-dataset na memória.
 3. Ao otimizar os gradientes sobre este conjunto agregado (pulando de ~1.000 para ~10.000 amostras por segmento), forçou-se o modelo a evitar a memorização de microestruturas de um ativo específico (overfitting individual). A rede foi obrigada a abstrair as características matemáticas universais (Transferência de Aprendizado) daquele segmento de mercado.
 
+### 2.3 Otimização de Hiperparâmetros: O "Sweet Spot" e *Early Stopping*
+Uma descoberta crítica da fase de modelagem individual foi a dinâmica de aprendizado das redes frente ao baixo *Sinal/Ruído* (SNR) financeiro. A análise das Curvas de Aprendizado (Learning Curves) revelou que o modelo atingia seu *Sweet Spot* — o ponto de generalização ótima onde a perda de validação é mínima — muito rapidamente, tipicamente entre a **1ª e a 3ª época**. 
+
+Após a 4ª época, as redes invariavelmente iniciavam um processo de divergência clássica de *overfitting* (a perda de treino continuava caindo, mas a de validação subia), sugerindo que a rede começava a memorizar o ruído estocástico do mercado.
+Por esta razão, o treinamento dos modelos de segmento foi estritamente limitado a **10 épocas**, aplicando-se uma rotina rigorosa de **Early Stopping**. A rede salvou exclusivamente os pesos (*checkpoints*) da época em que a métrica `best_val_loss` foi atingida, garantindo que as avaliações no conjunto de teste fossem conduzidas com a rede no seu estado máximo de generalização teórica.
+
 ## 3. A Prova da "Fome de Dados" (*Data Starvation* - Opção A)
 
 Para confirmar a hipótese de que modelos complexos como o MSR-CNN necessitam do *Data Pooling* (Opção B) para evitar overfitting, executamos também a **Opção A**, onde **195 modelos individuais** foram treinados (um modelo MSR-CNN treinado exclusivamente no histórico isolado de cada ativo).
