@@ -18,23 +18,22 @@ from train import FocalLoss
 # 1. DEFINIÇÃO DOS SEGMENTOS
 # ==========================================
 SEGMENTS = {
-    'BlueChips': ['VALE3.SA', 'PETR4.SA', 'ITUB4.SA', 'BBDC4.SA', 'BBAS3.SA', 
-                  'ABEV3.SA', 'WEGE3.SA', 'RENT3.SA', 'SUZB3.SA', 'BPAC11.SA', 
-                  'EQTL3.SA', 'RADL3.SA', 'B3SA3.SA', 'VIVT3.SA', 'JBSS3.SA'],
-                  
-    'SmallCaps': ['MGLU3.SA', 'COGN3.SA', 'YDUQ3.SA', 'CVCB3.SA', 'ALPA4.SA', 
-                  'TASA4.SA', 'GOLL4.SA', 'AZUL4.SA', 'LWSA3.SA', 'MRVE3.SA', 
-                  'EZTC3.SA', 'POMO4.SA', 'RAPT4.SA', 'TEND3.SA', 'DIRR3.SA'],
-                  
     'Commodities': ['GC=F', 'SI=F', 'CL=F', 'BZ=F', 'ZS=F', 
-                    'ZC=F', 'KC=F', 'LE=F', 'SB=F', 'HG=F'],
+                    'ZC=F', 'KC=F', 'LE=F', 'SB=F', 'HG=F',
+                    'PL=F', 'PA=F', 'CC=F', 'CT=F', 'NG=F'],
                     
-    'FIIs': ['KNRI11.SA', 'HGLG11.SA', 'MXRF11.SA', 'XPLG11.SA', 'VISC11.SA', 
-             'BTLG11.SA', 'CPTS11.SA', 'IRDM11.SA', 'VILG11.SA', 'RECR11.SA', 
-             'TGAR11.SA', 'HGRE11.SA', 'BRCR11.SA', 'HGBS11.SA', 'ALZR11.SA'],
-             
-    'BDRs': ['AAPL34.SA', 'MSFT34.SA', 'AMZO34.SA', 'GOGL34.SA', 'META34.SA', 
-             'TSLA34.SA', 'NVDC34.SA', 'MELI34.SA', 'BABA34.SA', 'DISB34.SA']
+    'MegaCapsTech': ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 
+                     'META', 'TSLA', 'NFLX', 'ADBE', 'CRM', 
+                     'AMD', 'INTC', 'CSCO', 'QCOM', 'TXN', 
+                     'AVGO', 'AMAT', 'MU', 'LRCX', 'INTU'],
+                     
+    'TradicionaisGlobais': ['JNJ', 'PG', 'XOM', 'CVX', 'JPM', 
+                            'V', 'KO', 'PEP', 'WMT', 'MCD', 
+                            'NKE', 'DIS', 'BA', 'PFE', 'UNH', 
+                            'HD', 'VZ', 'T', 'MRK', 'ABT'],
+                            
+    'CambioGlobal': ['EURUSD=X', 'JPY=X', 'GBPUSD=X', 'AUDUSD=X', 'USDCAD=X', 
+                     'USDCHF=X', 'NZDUSD=X', 'EURGBP=X', 'EURJPY=X', 'BRL=X']
 }
 
 DATA_DIR = './data_bulk'
